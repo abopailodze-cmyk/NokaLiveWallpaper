@@ -14,8 +14,7 @@ jobs:
       - name: Unzip Android project
         run: |
           unzip NokaLiveWallpaper-Android-Project.zip -d extracted
-          find extracted -name settings.gradle -exec dirname {} \; > project_dir.txt
-          echo "PROJECT_DIR=$(head -n 1 project_dir.txt)" >> "$GITHUB_ENV"
+          find extracted -name settings.gradle -print
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -24,10 +23,9 @@ jobs:
           java-version: '17'
 
       - name: Build APK
-        uses: gradle/gradle-build-action@v3
-        with:
-          gradle-version: '8.9'
-          arguments: -p "${{ env.PROJECT_DIR }}" assembleDebug
+        run: |
+          cd extracted/NokaLiveWallpaper-Android-Project/NokaLiveWallpaper
+          gradle assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
