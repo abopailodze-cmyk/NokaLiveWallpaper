@@ -1,4 +1,3 @@
-
 name: Build Noka APK
 
 on:
@@ -12,20 +11,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Unzip Android project
+        run: |
+          unzip NokaLiveWallpaper-Android-Project.zip -d extracted
+          find extracted -name settings.gradle -exec dirname {} \; > project_dir.txt
+          PROJECT_DIR=$(head -n 1 project_dir.txt)
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
       - name: Build APK
-        run: gradle assembleDebug
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: '8.9'
+          arguments: assembleDebug
+          build-root-directory: ${{ env.PROJECT_DIR }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Noka-APK
-          path: app/build/outputs/apk/debug/*.apk
+          path: extracted/**/app/build/outputs/apk/debug/*.apk
