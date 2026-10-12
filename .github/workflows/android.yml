@@ -15,8 +15,7 @@ jobs:
         run: |
           unzip NokaLiveWallpaper-Android-Project.zip -d extracted
           find extracted -name settings.gradle -exec dirname {} \; > project_dir.txt
-          PROJECT_DIR=$(head -n 1 project_dir.txt)
-          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          echo "PROJECT_DIR=$(head -n 1 project_dir.txt)" >> "$GITHUB_ENV"
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -28,8 +27,7 @@ jobs:
         uses: gradle/gradle-build-action@v3
         with:
           gradle-version: '8.9'
-          arguments: assembleDebug
-          build-root-directory: ${{ env.PROJECT_DIR }}
+          arguments: -p "${{ env.PROJECT_DIR }}" assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
